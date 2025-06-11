@@ -19,6 +19,7 @@ public class WinTrigger : MonoBehaviour
     private float lastGlobalBellInteractionTime = -10f;
 
     private GameModeManager gameModeManager;
+    private ClockwiseGame clockwiseGame;
 
     void Start()
     {
@@ -29,13 +30,13 @@ public class WinTrigger : MonoBehaviour
             if (i < bellOnList.Count && bellOnList[i] != null) bellOnList[i].SetActive(false);
         }
 
-        // Tìm GameModeManager
         gameModeManager = FindObjectOfType<GameModeManager>();
-
         if (gameModeManager == null)
         {
-            Debug.LogWarning("Không tìm thấy GameModeManager trong scene!");
+            Debug.LogWarning("Không tìm thấy GameModeManager trong scene.");
         }
+
+        clockwiseGame = FindObjectOfType<ClockwiseGame>();
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -100,13 +101,20 @@ public class WinTrigger : MonoBehaviour
             if (winSound != null)
                 AudioSource.PlayClipAtPoint(winSound, Camera.main.transform.position);
 
+            if (clockwiseGame != null)
+            {
+                var audio = clockwiseGame.GetComponent<AudioSource>();
+                if (audio != null) audio.Stop();
+            }
+
+            Time.timeScale = 0;
+
             if (gameModeManager != null)
             {
                 gameModeManager.TriggerWin();
             }
             else
             {
-                // Fallback: bật canvas thủ công nếu không dùng GameModeManager
                 if (winCanvas != null)
                 {
                     winCanvas.gameObject.SetActive(true);

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI; // <- Quan trọng để dùng Button
 
 public class GameModeManager : MonoBehaviour
 {
@@ -16,6 +17,11 @@ public class GameModeManager : MonoBehaviour
     [Header("Win Score UI")]
     public TextMeshProUGUI currentScoreText;
     public TextMeshProUGUI highScoreText;
+
+    [Header("Add Time Button")]
+    public Button addTimeButton; // Gắn nút UI tại đây trong Inspector
+    public int maxUses = 1;       // Số lần được ấn
+    private int usedCount = 0;
 
     private float currentTime;
     private bool isTimerActive = false;
@@ -45,6 +51,9 @@ public class GameModeManager : MonoBehaviour
 
         canvasLose.SetActive(false);
         canvasWin.SetActive(false);
+
+        if (addTimeButton != null)
+            addTimeButton.onClick.AddListener(Add10SecondsFromButton);
     }
 
     void Update()
@@ -62,6 +71,30 @@ public class GameModeManager : MonoBehaviour
             currentTime = 0f;
             isTimerActive = false;
             TriggerLose();
+        }
+    }
+
+    public void AddTime(float extraTime)
+    {
+        if (!hasEnded && isTimerActive)
+        {
+            currentTime += extraTime;
+            Debug.Log($"⏱️ Đã thêm {extraTime} giây! Thời gian hiện tại: {currentTime}");
+        }
+    }
+
+    public void Add10SecondsFromButton()
+    {
+        if (usedCount < maxUses)
+        {
+            AddTime(10f);
+            usedCount++;
+
+            if (usedCount >= maxUses && addTimeButton != null)
+            {
+                addTimeButton.interactable = false;
+                addTimeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Đã dùng";
+            }
         }
     }
 
